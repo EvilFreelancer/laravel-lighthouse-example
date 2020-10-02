@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Query\Builder;
+use GraphQL\Type\Definition\ResolveInfo;
+use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 class User extends Authenticatable
 {
@@ -46,5 +51,14 @@ class User extends Authenticatable
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'user_id', 'id');
+    }
+
+    public function statistics($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): Builder
+    {
+        return DB::table('users')->where('id','>',10);
+    }
+
+    public function scopeLimit(QueryBuilder $query) {
+        return $query->where('id','>',10);
     }
 }
