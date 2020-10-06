@@ -8,12 +8,16 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
 
 type Mutation {
-    createUser(input: CreateUserInput! @spread): User
-    updateUser(id: ID!, email: String, name: String): User
-    deleteUser(id: ID!): DeleteResponse!
+    login(input: LoginInput! @spread): User!
+    register(input: RegisterInput! @spread): User!
+    refresh: User! @middleware(checks: ["auth:api"])
+
+    createUser(input: CreateUserInput! @spread): User @middleware(checks: ["auth:api"])
+    updateUser(id: ID!, email: String, name: String): User @middleware(checks: ["auth:api"])
+    deleteUser(id: ID!): DeleteResponse! @middleware(checks: ["auth:api"])
 
     "Upload a file that is publicly available."
-    upload(file: Upload!): Image
+    upload(file: Upload!): Image @middleware(checks: ["auth:api"])
 }
 
 type Image {
@@ -25,6 +29,18 @@ type Image {
     user: User
     created_at: String
     updated_at: String
+}
+
+input LoginInput {
+    email: String!
+    password: String!
+}
+
+input RegisterInput {
+    name: String!
+    email: String!
+    password: String!
+    password_confirmation: String!
 }
 
 input CreateUserInput {
@@ -39,18 +55,22 @@ type DeleteResponse {
 }
 
 type Query {
+
+    "Return information about current user"
+    me: User @middleware(checks: ["auth:api"])
+
     users(
         orderBy: _ @orderBy(columns: ["updated_at", "name", "id"])
         where: _ @whereConditions(columns: ["updated_at", "name", "id"])
-    ): [User!] @paginate(defaultCount: 10, maxCount: 20, type: "connection", scopes: ["limit"])
-    user(id: ID @eq): User @find
-    usersAll: [User!] @all
+    ): [User!] @paginate(defaultCount: 10, maxCount: 20, type: "connection", scopes: ["limit"]) @middleware(checks: ["auth:api"])
+    user(id: ID @eq): User @find @middleware(checks: ["auth:api"])
+    usersAll: [User!] @all @middleware(checks: ["auth:api"])
 
-    events: [Event!] @paginate(defaultCount: 10)
-    event(id: ID @eq): Event @find
+    events: [Event!] @paginate(defaultCount: 10) @middleware(checks: ["auth:api"])
+    event(id: ID @eq): Event @find @middleware(checks: ["auth:api"])
 
-    tickets: [Ticket!] @paginate(defaultCount: 10)
-    ticket(id: ID @eq): Ticket @find
+    tickets: [Ticket!] @paginate(defaultCount: 10) @middleware(checks: ["auth:api"])
+    ticket(id: ID @eq): Ticket @find @middleware(checks: ["auth:api"])
 }
 
 type Event {
@@ -69,6 +89,8 @@ type User {
     name: String!
     email: String!
     tickets: [Ticket!]
+    api_token: String!
+    expired_at: DateTime!
     created_at: DateTime!
     updated_at: DateTime!
 }

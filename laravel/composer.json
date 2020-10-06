@@ -16,7 +16,8 @@
         "laravel/tinker": "^2.0",
         "mll-lab/graphql-php-scalars": "^3.1",
         "mll-lab/laravel-graphql-playground": "^2.4",
-        "nuwave/lighthouse": "^4.16"
+        "nuwave/lighthouse": "^4.16",
+        "ext-json": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.6",
