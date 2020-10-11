@@ -8,16 +8,21 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
 
 type Mutation {
+    "Login user by email and password"
     login(input: LoginInput! @spread): User!
     register(input: RegisterInput! @spread): User!
     refresh: User! @middleware(checks: ["auth:api"])
 
+    syncTicket(
+        ticket_id: [Int!]! @rulesForArray(apply: ["exists:tickets,id"])
+    ): User! @middleware(checks: ["auth:api"])
+
     createUser(input: CreateUserInput! @spread): User @middleware(checks: ["auth:api"])
-    updateUser(id: ID!, email: String, name: String): User @middleware(checks: ["auth:api"])
+    updateUser(id: ID!, email: String @rules(apply: ["email"]), name: String @rules(apply: ["min:1"])): User @middleware(checks: ["auth:api"])
     deleteUser(id: ID!): DeleteResponse! @middleware(checks: ["auth:api"])
 
     "Upload a file that is publicly available."
-    upload(file: Upload!): Image @middleware(checks: ["auth:api"])
+    upload(file: Upload! @rules(apply: ["image"])): Image @middleware(checks: ["auth:api"])
 }
 
 type Image {
@@ -31,22 +36,25 @@ type Image {
     updated_at: String
 }
 
+"Required fields for login to system"
 input LoginInput {
-    email: String!
-    password: String!
+    "Required email for login"
+    email: String! @rules(apply: ["email"])
+    "Password related to provided email"
+    password: String! @rules(apply: ["min:8"])
 }
 
 input RegisterInput {
-    name: String!
-    email: String!
-    password: String!
-    password_confirmation: String!
+    name: String! @rules(apply: ["min:1"])
+    email: String! @rules(apply: ["email","unique:users,email"])
+    password: String! @rules(apply: ["min:8","confirmed"])
+    password_confirmation: String! @rules(apply: ["min:8"])
 }
 
 input CreateUserInput {
-    name: String!
-    email: String!
-    password: String!
+    name: String! @rules(apply: ["min:1"])
+    email: String! @rules(apply: ["email"])
+    password: String! @rules(apply: ["min:8"])
 }
 
 type DeleteResponse {

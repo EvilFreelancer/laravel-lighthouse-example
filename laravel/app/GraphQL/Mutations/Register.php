@@ -16,17 +16,6 @@ class Register
      */
     public function __invoke($_, array $args)
     {
-        $validator = \Validator::make($args, [
-            'name'                  => 'required|min:1',
-            'email'                 => 'required|email|unique:users,email',
-            'password'              => 'required|min:8|confirmed',
-            'password_confirmation' => 'required|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            throw new Error('Unable to register: ' . json_encode($validator->errors()));
-        }
-
         $user           = new User();
         $user->name     = $args['name'];
         $user->email    = $args['email'];

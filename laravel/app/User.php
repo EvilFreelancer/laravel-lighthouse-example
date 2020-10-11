@@ -4,6 +4,7 @@ namespace App;
 
 use App\Models\Ticket;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -46,11 +47,11 @@ class User extends Authenticatable
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function tickets(): HasMany
+    public function tickets(): BelongsToMany
     {
-        return $this->hasMany(Ticket::class, 'user_id', 'id');
+        return $this->belongsToMany(Ticket::class, 'user_ticket');
     }
 
     public function statistics($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): Builder

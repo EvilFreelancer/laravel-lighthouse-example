@@ -19,9 +19,6 @@ class CreateTicketsTable extends Migration
             $table->unsignedBigInteger('event_id')->nullable();
             $table->foreign('event_id')->references('id')->on('events')->onDelete('set null');
 
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
-
             $table->timestamps();
         });
     }
