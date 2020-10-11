@@ -22,8 +22,7 @@ class Upload
         /** @var \Illuminate\Http\UploadedFile $file */
         $file = $args['file'];
 
-        // $this->user_id
-        \Storage::put(Image::getPathOfImage(null, null), $file);
+        \Storage::put(Image::getPathOfImage(null, $user->id), $file);
 
         $image          = new Image();
         $image->name    = $file->getFilename();
