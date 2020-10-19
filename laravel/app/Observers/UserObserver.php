@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\User;
 use Carbon\Carbon;
+use Nuwave\Lighthouse\Execution\Utils\Subscription;
 
 class UserObserver
 {
@@ -12,11 +13,10 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        $token = \Str::random(80);
-        $hash  = hash('sha256', $token);
-
-        $user->api_token  = $token;
+        $user->api_token  = \Str::random(80);
         $user->expired_at = Carbon::now()->addDays(30);
         $user->save();
+
+        Subscription::broadcast('userCreated', $user);
     }
 }

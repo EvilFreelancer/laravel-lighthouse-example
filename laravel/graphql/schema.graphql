@@ -7,6 +7,10 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 "Can be used as an argument to upload files using https://github.com/jaydenseric/graphql-multipart-request-spec"
 scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
 
+type Subscription {
+    userCreated: User
+}
+
 type Mutation {
     "Login user by email and password"
     login(input: LoginInput! @spread): User!
@@ -17,7 +21,7 @@ type Mutation {
         ticket_id: [Int!]! @rulesForArray(apply: ["exists:tickets,id"])
     ): User! @middleware(checks: ["auth:api"])
 
-    createUser(input: CreateUserInput! @spread): User @middleware(checks: ["auth:api"])
+    createUser(input: CreateUserInput! @spread): User @middleware(checks: ["auth:api"])  @broadcast(subscription: "userCreated")
     updateUser(id: ID!, email: String @rules(apply: ["email"]), name: String @rules(apply: ["min:1"])): User @middleware(checks: ["auth:api"])
     deleteUser(id: ID!): DeleteResponse! @middleware(checks: ["auth:api"])
 

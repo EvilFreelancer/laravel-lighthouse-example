@@ -1,39 +1,99 @@
-version: "2"
+version: "2.4"
 
 services:
 
+  redis:
+    image: redis:5
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:6379:6379
+    volumes:
+      - ./databases/redis:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
   mariadb:
     image: mariadb
+    restart: unless-stopped
     ports:
-    - 3306:3306
+      - 127.0.0.1:3306:3306
     environment:
-    - MYSQL_DATABASE=database
-    - MYSQL_ROOT_PASSWORD=root_pass
-    - MYSQL_ROOT_HOST=%
-    - MYSQL_USER=user
-    - MYSQL_PASSWORD=pass
+      - MYSQL_DATABASE=database
+      - MYSQL_ROOT_PASSWORD=root_pass
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
     volumes:
-    - ./databases/mysql:/var/lib/mysql
-    - ./logs/mysql:/var/log/mysql
+      - ./databases/mysql:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
     ports:
-    - 8080:80
+      - 127.0.0.1:8080:80
     environment:
-    - PMA_HOST=mariadb
-    - PMA_USER=root
-    - PMA_PASSWORD=root_pass
+      - PMA_HOST=mariadb
+      - PMA_USER=root
+      - PMA_PASSWORD=root_pass
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
 
   laravel:
     image: evilfreelancer/dockavel:latest
     restart: unless-stopped
-    env_file:
-    - .env
-    links:
-    - mariadb
+    entrypoint: ["/app/entrypoint.sh"]
+    depends_on:
+      - mariadb
+      - redis
     ports:
-    - 80:80
+      - 80:80
     volumes:
-    - ./laravel:/app:rw
-    - ./logs/laravel:/var/log/apache2:rw
+      - ./laravel:/app:rw
+      - ./logs/laravel:/var/log/apache2:rw
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
+  queue:
+    image: evilfreelancer/dockavel:latest
+    restart: unless-stopped
+    entrypoint: ["/app/entrypoint.sh"]
+    environment:
+      CONTAINER_ROLE: queue
+    depends_on:
+      - mariadb
+      - redis
+    volumes:
+      - ./laravel:/app:rw
+      - ./logs/laravel:/var/log/apache2:rw
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
+  scheduler:
+    image: evilfreelancer/dockavel:latest
+    restart: unless-stopped
+    entrypoint: ["/app/entrypoint.sh"]
+    environment:
+      CONTAINER_ROLE: scheduler
+    depends_on:
+      - mariadb
+      - redis
+    volumes:
+      - ./laravel:/app:rw
+      - ./logs/laravel:/var/log/apache2:rw
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
