@@ -15,7 +15,7 @@ Clone the repo and change your work directory to root of sources
     git clone https://github.com/EvilFreelancer/laravel-lighthouse-example.git
     cd laravel-lighthouse-example
     cp docker-compose.dist.yml docker-compose.yml
-    cp .env.example .env
+    cd laravel && cp .env.example .env && cd ..
 
 Inside `docker-compose.yml` you need change the values to the ones you
 need, for example you do not want to tun this project on `80` port, to
