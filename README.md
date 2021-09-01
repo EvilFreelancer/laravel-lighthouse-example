@@ -1,4 +1,4 @@
-# Laravel + Lighthouse PHP demo application
+# Laravel + GraphQL (Lighthouse PHP) demo application
 
 This application based on Docker containers, here is the list:
 
@@ -6,55 +6,72 @@ This application based on Docker containers, here is the list:
 * phpmyadmin - For management of MySQL
 * laravel - Login pages, API and VueJS
 
-## How to use
+## How to install
 
 ### 1. Preparation
 
 Clone the repo and change your work directory to root of sources
 
-    git clone https://github.com/EvilFreelancer/laravel-lighthouse-example.git
-    cd laravel-lighthouse-example
-    cp docker-compose.dist.yml docker-compose.yml
-    cd laravel && cp .env.example .env && cd ..
+```shell
+git clone https://github.com/EvilFreelancer/laravel-lighthouse-example.git
+cd laravel-lighthouse-example
+cp docker-compose.dist.yml docker-compose.yml
+cd laravel
+cp .env.example .env
+conposer install
+cd ..
+```
 
-Inside `docker-compose.yml` you need change the values to the ones you
-need, for example you do not want to tun this project on `80` port, to
-fix that you need just change this line `80:80` to what you need (`7777:80`).
+In file `docker-compose.yml` you probably will need the change a values to ones you
+need, for example you don't need to run this project on `80` port, to
+fix that just change line like `80:80` to required values, eg. `7777:80`.
 
-Run first iteration of Docker environment
+Run first iteration of Docker environment:
 
-    docker-compose up -d
+```shell
+docker-compose up -d
+```
 
-### 2. Install all required components
+### 2. Inside container
 
-I assume that there are no development tools on your computer, so you
-need to login to Laravel container:
+Need to login into the Laravel container:
 
-    docker-compose exec laravel bash
+```shell
+docker-compose exec laravel bash
+```
 
-Install all dependencies
+And fix permissions on a few important folders:
 
-    composer install
+```shell
+chown apache:apache {bootstrap,storage,vendor} -R
+```
 
-Fix write permissions on a few important folders
+Then exit from container:
 
-    chown apache:apache bootstrap/ -R
-    chown apache:apache storage/ -R
+```shell
+exit
+```
 
-End exit from container
-
-    exit
-
-### 3. Set up the application
+### 3. Finish
 
 Login into container
 
-    docker-compose exec laravel bash
+```shell
+docker-compose exec laravel bash
+```
 
 Create database and seed tables
 
-    php artisan migrate
-    php artisan db:seed
+```shell
+php artisan migrate
+php artisan db:seed
+```
+
+Then exit from container:
+
+```shell
+exit
+```
 
 ## The End
 

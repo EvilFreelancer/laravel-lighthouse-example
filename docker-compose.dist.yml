@@ -15,7 +15,7 @@ services:
         max-size: "50m"
 
   mariadb:
-    image: mariadb
+    image: mariadb:10.5
     restart: unless-stopped
     ports:
       - 127.0.0.1:3306:3306
